@@ -10,7 +10,7 @@ async function checkAuth() {
         document.getElementById('loginLink').style.display = 'none';
         document.getElementById('profileLink').style.display = 'block';
         document.getElementById('balanceDisplay').style.display = 'block';
-        
+
         // Show admin link only for admin users
         if (currentUser.role === 'admin') {
             document.getElementById('adminLink').style.display = 'block';
@@ -43,12 +43,18 @@ async function loadTours() {
     } catch (error) {
         container.innerHTML = '<div class="col-12"><div class="alert alert-danger">Ошибка загрузки туров</div></div>';
     }
+
+    // Show create-tour card only for admin
+    const createRow = document.getElementById('createTourRow');
+    if (createRow) {
+        createRow.style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
+    }
 }
 
 // Display tours
 function displayTours(tours) {
     const container = document.getElementById('toursContainer');
-    
+
     if (!tours || tours.length === 0) {
         container.innerHTML = '<div class="col-12"><div class="alert alert-info">Нет доступных туров</div></div>';
         return;
@@ -67,7 +73,7 @@ function displayTours(tours) {
                     <p class="card-text"><strong>Цена:</strong> ${tour.price} COIN</p>
                     <p class="card-text"><strong>Участников:</strong> ${tour.current_participants}/${tour.max_participants}</p>
                     <p class="card-text"><strong>Дата:</strong> ${new Date(tour.start_date).toLocaleDateString('ru-RU')}</p>
-                    <button class="btn btn-primary w-100" onclick="showBookingModal(${tour.id})">Забронировать</button>
+                    <button class="btn btn-primary w-100" onclick="showBookingModal(${tour.id}, ${tour.price})">Забронировать</button>
                     <button class="btn btn-secondary w-100 mt-2" onclick="showRouteDetails(${tour.route_id})">Детали маршрута</button>
                     ${currentUser && currentUser.role === 'admin' ? `<button class="btn btn-danger w-100 mt-2" onclick="resetTour(${tour.id})">Сбросить тур</button>` : ''}
                 </div>
@@ -77,7 +83,7 @@ function displayTours(tours) {
 }
 
 // Show booking modal
-function showBookingModal(tourId) {
+function showBookingModal(tourId, tourPrice) {
     if (!currentUser) {
         alert('Пожалуйста, войдите в систему для бронирования');
         window.location.href = 'login.html';
@@ -96,8 +102,12 @@ function showBookingModal(tourId) {
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Количество участников</label>
-                        <input type="number" class="form-control" id="participantsCount" min="1" value="1">
+                        <label class="form-label">Количество мест</label>
+                        <input type="number" class="form-control" id="participantsCount" min="1" value="1"
+                            oninput="updateTotalPrice(${tourPrice})">
+                    </div>
+                    <div class="mb-3">
+                        <p class="card-text">Итого к списанию: <strong id="totalPriceDisplay">${tourPrice} COIN</strong></p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Заметки</label>
@@ -106,30 +116,48 @@ function showBookingModal(tourId) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="button" class="btn btn-primary" onclick="createBooking(${tourId})">Подтвердить</button>
+                    <button type="button" class="btn btn-primary" onclick="createBooking(${tourId}, ${tourPrice})">Подтвердить</button>
                 </div>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
-    
+
     const bootstrapModal = new bootstrap.Modal(modal);
     bootstrapModal.show();
-    
+
     modal.addEventListener('hidden.bs.modal', () => {
         modal.remove();
     });
 }
 
-// Create booking
-async function createBooking(tourId) {
+// Update total price display in booking modal
+function updateTotalPrice(pricePerSeat) {
+    const count = parseInt(document.getElementById('participantsCount').value) || 1;
+    document.getElementById('totalPriceDisplay').textContent = (pricePerSeat * count) + ' COIN';
+}
+
+// Create booking — списываем COIN с кошелька пользователя
+async function createBooking(tourId, tourPrice) {
     const participantsCount = parseInt(document.getElementById('participantsCount').value);
     const notes = document.getElementById('bookingNotes').value;
 
-    try {
-        const tour = await tourAPI.getById(tourId);
-        const totalPrice = tour.price * participantsCount;
+    if (isNaN(participantsCount) || participantsCount < 1) {
+        alert('Укажите корректное количество мест');
+        return;
+    }
 
+    const totalPrice = tourPrice * participantsCount;
+
+    try {
+        // Проверяем баланс кошелька
+        const walletInfo = await walletAPI.getBalance(currentUserId);
+        if (parseFloat(walletInfo.balance) < totalPrice) {
+            alert(`Недостаточно средств! Нужно ${totalPrice} COIN, у вас ${walletInfo.balance} COIN`);
+            return;
+        }
+
+        // Создаём бронирование (сервер сам обновляет current_participants)
         const bookingData = {
             user_id: currentUserId,
             tour_id: tourId,
@@ -137,17 +165,72 @@ async function createBooking(tourId) {
             total_price: totalPrice,
             notes: notes
         };
-
         await bookingAPI.create(bookingData);
-        
-        // Update tour participants
-        await tourAPI.updateParticipants(tourId, tour.current_participants + participantsCount);
-        
-        alert('Бронирование успешно создано!');
+
+        // Списываем COIN с кошелька пользователя
+        const walletData = await walletAPI.getByUserId(currentUserId);
+        await walletAPI.update(walletData.id, { balance: parseFloat(walletInfo.balance) - totalPrice });
+
+        alert(`Бронирование создано! Списано ${totalPrice} COIN`);
         bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+
+        // Обновляем баланс в navbar
+        document.getElementById('balanceDisplay').textContent = (parseFloat(walletInfo.balance) - totalPrice) + ' COIN';
         loadTours();
     } catch (error) {
         alert('Ошибка при создании бронирования: ' + error.message);
+    }
+}
+
+// Create new tour (admin only)
+async function createNewTour() {
+    const routeId  = parseInt(document.getElementById('newTourRouteId').value);
+    const name     = document.getElementById('newTourName').value.trim();
+    const desc     = document.getElementById('newTourDesc').value.trim();
+    const price    = parseFloat(document.getElementById('newTourPrice').value);
+    const maxP     = parseInt(document.getElementById('newTourMax').value);
+    const start    = document.getElementById('newTourStart').value;
+    const end      = document.getElementById('newTourEnd').value;
+
+    if (!routeId || !name || !price || !maxP || !start || !end) {
+        alert('Заполните все обязательные поля (кроме описания)');
+        return;
+    }
+    if (new Date(end) <= new Date(start)) {
+        alert('Дата окончания должна быть позже даты начала');
+        return;
+    }
+
+    try {
+        await tourAPI.create({
+            route_id: routeId,
+            name,
+            description: desc,
+            price,
+            max_participants: maxP,
+            start_date: start,
+            end_date: end,
+            status: 'active'
+        });
+        alert('Тур успешно создан!');
+        // Очищаем форму
+        ['newTourRouteId','newTourName','newTourDesc','newTourPrice','newTourMax','newTourStart','newTourEnd']
+            .forEach(id => document.getElementById(id).value = '');
+        loadTours();
+    } catch (error) {
+        alert('Ошибка при создании тура: ' + error.message);
+    }
+}
+
+// Reset tour participants (admin only)
+async function resetTour(tourId) {
+    if (!confirm('Сбросить количество участников до 0? Бронирования останутся в базе.')) return;
+    try {
+        await tourAPI.reset(tourId);
+        alert('Тур успешно сброшен!');
+        loadTours();
+    } catch (error) {
+        alert('Ошибка при сбросе тура: ' + error.message);
     }
 }
 
@@ -155,7 +238,7 @@ async function createBooking(tourId) {
 async function showRouteDetails(routeId) {
     try {
         const route = await routeAPI.getById(routeId);
-        
+
         const modal = document.createElement('div');
         modal.className = 'modal fade';
         modal.id = 'routeModal';
@@ -184,34 +267,21 @@ async function showRouteDetails(routeId) {
             </div>
         `;
         document.body.appendChild(modal);
-        
+
         const bootstrapModal = new bootstrap.Modal(modal);
         bootstrapModal.show();
-        
-        // Initialize Yandex Map
+
         if (route.coordinates_start) {
             const coords = route.coordinates_start.split(',').map(c => parseFloat(c.trim()));
             initYandexMap(coords[0], coords[1]);
         }
-        
+
         modal.addEventListener('hidden.bs.modal', () => {
             modal.remove();
         });
     } catch (error) {
         alert('Ошибка при загрузке маршрута: ' + error.message);
     }
-}
-
-// Reset tour participants (admin only)
-async function resetTour(tourId) {
-  if (!confirm('Вы уверены, что хотите сбросить количество участников этого тура до 0? Старые бронирования останутся в базе.')) return;
-  try {
-    await tourAPI.reset(tourId);
-    alert('Тур успешно сброшен!');
-    loadTours();
-  } catch (error) {
-    alert('Ошибка при сбросе тура: ' + error.message);
-  }
 }
 
 // Initialize Yandex Map
@@ -222,11 +292,9 @@ function initYandexMap(lat, lon) {
                 center: [lat, lon],
                 zoom: 10
             });
-            
             const placemark = new ymaps.Placemark([lat, lon], {
                 balloonContent: 'Точка маршрута'
             });
-            
             map.geoObjects.add(placemark);
         });
     } else {
@@ -236,8 +304,9 @@ function initYandexMap(lat, lon) {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-    if (document.getElementById('toursContainer')) {
-        loadTours();
-    }
+    checkAuth().then(() => {
+        if (document.getElementById('toursContainer')) {
+            loadTours();
+        }
+    });
 });

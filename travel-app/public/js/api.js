@@ -97,3 +97,8 @@ const reviewAPI = {
     delete: (id) => apiRequest(`/reviews/${id}`, 'DELETE'),
     getTourReviews: (tourId) => apiRequest(`/reviews/tour/${tourId}/details`)
 };
+
+// Admin API
+const adminAPI = {
+    topup: (userId, amount) => apiRequest('/admin/topup', 'POST', { user_id: userId, amount })
+};

@@ -7,9 +7,27 @@
     --card-black: #20212B;
 }
 
+/* === Sticky footer === */
+html, body {
+    height: 100%;
+}
+
 body {
     background-color: #f8f9fa;
     color: var(--text-burgundy);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body > .container,
+body > nav + .container {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex-shrink: 0;
+    margin-top: auto !important;
 }
 
 .navbar {
@@ -192,4 +210,45 @@ body {
     align-items: center;
     justify-content: center;
     color: var(--accent-peach);
+}
+
+/* === Admin nav-tabs: тёмные буквы, выраженные линии === */
+.nav-tabs {
+    border-bottom: 2px solid var(--terracotta);
+}
+
+.nav-tabs .nav-link {
+    color: var(--primary-dark) !important;
+    font-weight: 600;
+    border: 1px solid transparent;
+    background-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--terracotta) !important;
+    border-color: var(--secondary-green) var(--secondary-green) transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-dark) !important;
+    background-color: #fff;
+    border-color: var(--terracotta) var(--terracotta) #fff;
+    border-width: 2px;
+    font-weight: 700;
+}
+
+/* === Карточка «Создать тур» === */
+.col-create .card {
+    border: 2px dashed var(--terracotta);
+}
+
+.col-create .card-body {
+    background-color: var(--card-black);
+}
+
+/* === Форма пополнения COIN в Admin Panel === */
+#coinTopupHistory .list-group-item {
+    background-color: var(--primary-dark);
+    color: var(--accent-peach);
+    border-color: var(--secondary-green);
 }

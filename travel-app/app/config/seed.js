@@ -120,6 +120,55 @@ const seedDatabase = async () => {
       status: "active"
     });
 
+    // 4 additional tours
+    const tour4 = await db.tour.create({
+      route_id: route1.id,
+      name: "Winter Mountain Challenge",
+      description: "Conquer the mountains in winter conditions",
+      price: 650.00,
+      max_participants: 8,
+      current_participants: 0,
+      start_date: "2026-12-10",
+      end_date: "2026-12-14",
+      status: "active"
+    });
+
+    const tour5 = await db.tour.create({
+      route_id: route2.id,
+      name: "Spring Coastal Sunrise",
+      description: "Watch the sunrise on the coast",
+      price: 280.00,
+      max_participants: 20,
+      current_participants: 0,
+      start_date: "2026-04-05",
+      end_date: "2026-04-07",
+      status: "active"
+    });
+
+    const tour6 = await db.tour.create({
+      route_id: route3.id,
+      name: "Autumn Forest Mushroom Hunt",
+      description: "Pick mushrooms and enjoy autumn colors",
+      price: 200.00,
+      max_participants: 15,
+      current_participants: 0,
+      start_date: "2026-10-03",
+      end_date: "2026-10-06",
+      status: "active"
+    });
+
+    const tour7 = await db.tour.create({
+      route_id: route1.id,
+      name: "Night Sky Mountain Trek",
+      description: "Stargazing hike to the summit",
+      price: 420.00,
+      max_participants: 6,
+      current_participants: 0,
+      start_date: "2026-08-20",
+      end_date: "2026-08-24",
+      status: "active"
+    });
+
     console.log("Tours created.");
 
     console.log("Database seeding completed successfully!");

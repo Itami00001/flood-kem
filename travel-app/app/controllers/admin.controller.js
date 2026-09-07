@@ -94,3 +94,24 @@ exports.getAllChecks = (req, res) => {
       });
     });
 };
+
+// Admin: topup wallet balance for any user
+exports.topupWallet = async (req, res) => {
+  const { user_id, amount } = req.body;
+
+  if (!user_id || !amount || isNaN(amount) || amount <= 0) {
+    return res.status(400).send({ message: "user_id and positive amount are required." });
+  }
+
+  try {
+    const wallet = await db.wallet.findOne({ where: { user_id } });
+    if (!wallet) {
+      return res.status(404).send({ message: `Wallet for user_id=${user_id} not found.` });
+    }
+    wallet.balance = parseFloat(wallet.balance) + parseFloat(amount);
+    await wallet.save();
+    res.send({ message: "Balance topped up successfully.", balance: wallet.balance });
+  } catch (err) {
+    res.status(500).send({ message: err.message || "Error topping up wallet." });
+  }
+};

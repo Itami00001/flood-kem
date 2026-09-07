@@ -30,6 +30,9 @@
                         <a class="nav-link" href="admin.html" id="adminLink" style="display: none;">Admin</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:6868/api-docs" target="_blank">Swagger</a>
+                    </li>
+                    <li class="nav-item">
                         <span class="nav-link" id="balanceDisplay" style="display: none;">0 COIN</span>
                     </li>
                 </ul>
@@ -64,9 +67,51 @@
         <div class="row" id="toursContainer">
             <!-- Tours will be loaded here -->
         </div>
+
+        <!-- Карточка создания нового тура (только для admin) -->
+        <div class="row" id="createTourRow" style="display:none;">
+            <div class="col-md-4 mb-4 col-create">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">➕ Создать новый тур</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <label class="form-label">Маршрут (ID)</label>
+                            <input type="number" class="form-control" id="newTourRouteId" placeholder="ID маршрута" min="1">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Название</label>
+                            <input type="text" class="form-control" id="newTourName" placeholder="Название тура">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Описание</label>
+                            <input type="text" class="form-control" id="newTourDesc" placeholder="Описание">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Цена (COIN)</label>
+                            <input type="number" class="form-control" id="newTourPrice" placeholder="Цена" min="1">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Макс. участников</label>
+                            <input type="number" class="form-control" id="newTourMax" placeholder="Кол-во мест" min="1">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Дата начала</label>
+                            <input type="date" class="form-control" id="newTourStart">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Дата окончания</label>
+                            <input type="date" class="form-control" id="newTourEnd">
+                        </div>
+                        <button class="btn btn-primary w-100 mt-2" onclick="createNewTour()">Создать тур</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <footer class="footer mt-5 py-3">
+    <footer class="footer py-3">
         <div class="container text-center">
             <p class="mb-0">&copy; 2026 Travel Booking System</p>
         </div>

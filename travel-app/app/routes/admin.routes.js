@@ -75,4 +75,36 @@ router.get("/stats", isAdmin, adminController.getBookingsByDate);
  */
 router.get("/checks", isAdmin, adminController.getAllChecks);
 
+/**
+ * @swagger
+ * /api/admin/topup:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Top up wallet balance for any user (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - amount
+ *             properties:
+ *               user_id:
+ *                 type: integer
+ *               amount:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Balance topped up successfully
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: Wallet not found
+ */
+router.post("/topup", isAdmin, adminController.topupWallet);
+
 module.exports = router;

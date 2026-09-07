@@ -7,7 +7,8 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: ['http://localhost:8081', 'http://localhost:6868', 'http://localhost:3000'],
+  credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -56,7 +57,8 @@ const swaggerOptions = {
       { name: 'Routes', description: 'Управление маршрутами' },
       { name: 'Tours', description: 'Управление турами' },
       { name: 'Bookings', description: 'Управление бронированиями' },
-      { name: 'Reviews', description: 'Управление отзывами' }
+      { name: 'Reviews', description: 'Управление отзывами' },
+      { name: 'Admin', description: 'Административные операции' }
     ]
   },
   apis: ['./app/routes/*.js']

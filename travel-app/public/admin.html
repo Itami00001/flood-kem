@@ -24,6 +24,9 @@
                         <a class="nav-link" href="profile.html">Профиль</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:6868/api-docs" target="_blank">Swagger</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#" onclick="logout()">Выход</a>
                     </li>
                 </ul>
@@ -47,9 +50,13 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="checks-tab" data-bs-toggle="tab" data-bs-target="#checks" type="button">Чеки</button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="coin-tab" data-bs-toggle="tab" data-bs-target="#coin" type="button">COIN-пополнение</button>
+            </li>
         </ul>
 
         <div class="tab-content" id="adminTabsContent">
+            <!-- Пользователи -->
             <div class="tab-pane fade show active" id="users" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
@@ -68,9 +75,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td colspan="5" class="text-center">Загрузка...</td>
-                                    </tr>
+                                    <tr><td colspan="5" class="text-center">Загрузка...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -78,6 +83,7 @@
                 </div>
             </div>
 
+            <!-- Туры -->
             <div class="tab-pane fade" id="tours" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
@@ -99,9 +105,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td colspan="8" class="text-center">Загрузка...</td>
-                                    </tr>
+                                    <tr><td colspan="8" class="text-center">Загрузка...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -109,6 +113,7 @@
                 </div>
             </div>
 
+            <!-- Статистика -->
             <div class="tab-pane fade" id="stats" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
@@ -120,6 +125,7 @@
                 </div>
             </div>
 
+            <!-- Чеки -->
             <div class="tab-pane fade" id="checks" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
@@ -137,11 +143,47 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td colspan="4" class="text-center">Загрузка...</td>
-                                    </tr>
+                                    <tr><td colspan="4" class="text-center">Загрузка...</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COIN-пополнение -->
+            <div class="tab-pane fade" id="coin" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Пополнение баланса</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">ID пользователя</label>
+                                    <input type="number" class="form-control" id="topupUserId" placeholder="ID пользователя" min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Количество COIN</label>
+                                    <input type="number" class="form-control" id="topupAmount" placeholder="Сумма" min="1">
+                                </div>
+                                <button class="btn btn-primary w-100" onclick="topupCoin()">Пополнить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Последние операции</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group" id="coinTopupHistory">
+                                    <li class="list-group-item" style="background:transparent;color:var(--accent-peach);border-color:var(--secondary-green);">
+                                        История пополнений появится здесь
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -149,7 +191,7 @@
         </div>
     </div>
 
-    <footer class="footer mt-5 py-3">
+    <footer class="footer py-3">
         <div class="container text-center">
             <p class="mb-0">&copy; 2026 Travel Booking System</p>
         </div>
