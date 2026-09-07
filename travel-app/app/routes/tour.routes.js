@@ -61,6 +61,77 @@ router.post("/", tourController.create);
  */
 router.get("/", tourController.findAll);
 
+// ── STATIC routes MUST come before /:id ──────────────────────────────────────
+
+/**
+ * @swagger
+ * /api/tours/active/tours:
+ *   get:
+ *     tags: [Tours]
+ *     summary: Get active tours
+ *     responses:
+ *       200:
+ *         description: List of active tours
+ */
+router.get("/active/tours", tourController.findActive);
+
+/**
+ * @swagger
+ * /api/tours/rating/tours:
+ *   get:
+ *     tags: [Tours]
+ *     summary: Get tours with average ratings
+ *     responses:
+ *       200:
+ *         description: List of tours with ratings
+ */
+router.get("/rating/tours", tourController.getTourRating);
+
+/**
+ * @swagger
+ * /api/tours/available/tours:
+ *   get:
+ *     tags: [Tours]
+ *     summary: Get available tours for a period
+ *     parameters:
+ *       - in: query
+ *         name: start_date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: end_date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       200:
+ *         description: List of available tours
+ */
+router.get("/available/tours", tourController.getAvailableTours);
+
+/**
+ * @swagger
+ * /api/tours/route/{routeId}:
+ *   get:
+ *     tags: [Tours]
+ *     summary: Get tours by route ID
+ *     parameters:
+ *       - in: path
+ *         name: routeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of tours
+ */
+router.get("/route/:routeId", tourController.findByRoute);
+
+// ── Dynamic /:id routes ───────────────────────────────────────────────────────
+
 /**
  * @swagger
  * /api/tours/{id}:
@@ -80,36 +151,6 @@ router.get("/", tourController.findAll);
  *         description: Tour not found
  */
 router.get("/:id", tourController.findOne);
-
-/**
- * @swagger
- * /api/tours/active/tours:
- *   get:
- *     tags: [Tours]
- *     summary: Get active tours
- *     responses:
- *       200:
- *         description: List of active tours
- */
-router.get("/active/tours", tourController.findActive);
-
-/**
- * @swagger
- * /api/tours/route/{routeId}:
- *   get:
- *     tags: [Tours]
- *     summary: Get tours by route ID
- *     parameters:
- *       - in: path
- *         name: routeId
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: List of tours
- */
-router.get("/route/:routeId", tourController.findByRoute);
 
 /**
  * @swagger
@@ -173,6 +214,24 @@ router.put("/:id/participants", tourController.updateParticipants);
 
 /**
  * @swagger
+ * /api/tours/{id}/reset:
+ *   put:
+ *     tags: [Tours]
+ *     summary: Reset tour participants to 0
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Tour reset successfully
+ */
+router.put("/:id/reset", tourController.resetTour);
+
+/**
+ * @swagger
  * /api/tours/{id}:
  *   delete:
  *     tags: [Tours]
@@ -188,43 +247,5 @@ router.put("/:id/participants", tourController.updateParticipants);
  *         description: Tour deleted successfully
  */
 router.delete("/:id", tourController.delete);
-
-/**
- * @swagger
- * /api/tours/rating/tours:
- *   get:
- *     tags: [Tours]
- *     summary: Get tours with average ratings
- *     responses:
- *       200:
- *         description: List of tours with ratings
- */
-router.get("/rating/tours", tourController.getTourRating);
-
-/**
- * @swagger
- * /api/tours/available/tours:
- *   get:
- *     tags: [Tours]
- *     summary: Get available tours for a period
- *     parameters:
- *       - in: query
- *         name: start_date
- *         required: true
- *         schema:
- *           type: string
- *           format: date
- *       - in: query
- *         name: end_date
- *         required: true
- *         schema:
- *           type: string
- *           format: date
- *     responses:
- *       200:
- *         description: List of available tours
- */
-router.get("/available/tours", tourController.getAvailableTours);
-router.put("/:id/reset", tourController.resetTour);
 
 module.exports = router;

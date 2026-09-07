@@ -80,6 +80,9 @@ function displayTours(tours) {
             </div>
         </div>
     `).join('');
+
+    // Инициализируем карту с метками всех туров
+    initMainMap(tours);
 }
 
 // Show booking modal
@@ -284,7 +287,63 @@ async function showRouteDetails(routeId) {
     }
 }
 
-// Initialize Yandex Map
+// Initialize Yandex Map on main page with all active tour markers
+function initMainMap(tours) {
+    if (typeof ymaps === 'undefined') return;
+    ymaps.ready(() => {
+        // Destroy previous instance if any
+        if (window._mainMap) {
+            window._mainMap.destroy();
+            window._mainMap = null;
+        }
+
+        const mapEl = document.getElementById('mainYandexMap');
+        if (!mapEl) return;
+
+        // Default center — Moscow
+        let center = [55.7558, 37.6173];
+        let zoom = 4;
+
+        // Collect tour coords from routes
+        const points = [];
+        tours.forEach(tour => {
+            if (tour.route && tour.route.coordinates_start) {
+                const parts = tour.route.coordinates_start.split(',').map(c => parseFloat(c.trim()));
+                if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    points.push({ coords: parts, tour });
+                }
+            }
+        });
+
+        if (points.length > 0) center = points[0].coords;
+
+        const map = new ymaps.Map('mainYandexMap', { center, zoom });
+        window._mainMap = map;
+
+        points.forEach(({ coords, tour }) => {
+            const placemark = new ymaps.Placemark(coords, {
+                balloonContentHeader: tour.name,
+                balloonContentBody: `
+                    <b>Маршрут:</b> ${tour.route ? tour.route.name : '—'}<br>
+                    <b>Цена:</b> ${tour.price} COIN<br>
+                    <b>Мест:</b> ${tour.current_participants}/${tour.max_participants}<br>
+                    <b>Дата:</b> ${new Date(tour.start_date).toLocaleDateString('ru-RU')}
+                `,
+                hintContent: tour.name
+            }, {
+                preset: 'islands#orangeDotIcon'
+            });
+            map.geoObjects.add(placemark);
+        });
+
+        // Auto-fit to markers if more than one
+        if (points.length > 1) {
+            map.setBounds(map.geoObjects.getBounds(), { checkZoomRange: true, zoomMargin: 30 });
+        }
+    });
+}
+
+// Initialize Yandex Map in modal (route detail)
 function initYandexMap(lat, lon) {
     if (typeof ymaps !== 'undefined') {
         ymaps.ready(() => {
