@@ -1,0 +1,195 @@
+:root {
+    --primary-dark: #2D4354;
+    --secondary-green: #73766A;
+    --accent-peach: #FED7A5;
+    --terracotta: #9E6752;
+    --text-burgundy: #534145;
+    --card-black: #20212B;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: var(--text-burgundy);
+}
+
+.navbar {
+    background-color: var(--primary-dark);
+}
+
+.navbar-brand {
+    color: var(--accent-peach) !important;
+    font-weight: bold;
+}
+
+.nav-link {
+    color: var(--accent-peach) !important;
+}
+
+.nav-link:hover {
+    color: var(--terracotta) !important;
+}
+
+.btn-primary {
+    background-color: var(--accent-peach);
+    border-color: var(--accent-peach);
+    color: var(--text-burgundy);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: var(--terracotta);
+    border-color: var(--terracotta);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-green);
+    border-color: var(--secondary-green);
+    color: white;
+}
+
+.card {
+    background-color: white;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: var(--primary-dark);
+    color: var(--accent-peach);
+    font-weight: 600;
+}
+
+.card-body {
+    background-color: var(--card-black);
+    color: var(--accent-peach);
+}
+
+.card-title {
+    color: var(--terracotta);
+    font-weight: bold;
+}
+
+.card-text {
+    color: var(--accent-peach);
+}
+
+.form-control {
+    background-color: var(--card-black);
+    border-color: var(--secondary-green);
+    color: var(--accent-peach);
+}
+
+.form-control:focus {
+    background-color: var(--card-black);
+    border-color: var(--terracotta);
+    color: var(--accent-peach);
+    box-shadow: 0 0 0 0.25rem rgba(158, 103, 82, 0.25);
+}
+
+.form-select {
+    background-color: var(--card-black);
+    border-color: var(--secondary-green);
+    color: var(--accent-peach);
+}
+
+.form-select:focus {
+    background-color: var(--card-black);
+    border-color: var(--terracotta);
+    color: var(--accent-peach);
+    box-shadow: 0 0 0 0.25rem rgba(158, 103, 82, 0.25);
+}
+
+.footer {
+    background-color: var(--primary-dark);
+    color: var(--accent-peach);
+}
+
+.badge {
+    background-color: var(--terracotta);
+}
+
+.text-accent {
+    color: var(--accent-peach);
+}
+
+.text-terracotta {
+    color: var(--terracotta);
+}
+
+.modal-content {
+    background-color: var(--card-black);
+    color: var(--accent-peach);
+}
+
+.modal-header {
+    background-color: var(--primary-dark);
+    color: var(--accent-peach);
+    border-bottom: 1px solid var(--secondary-green);
+}
+
+.modal-footer {
+    background-color: var(--primary-dark);
+    border-top: 1px solid var(--secondary-green);
+}
+
+.table {
+    background-color: var(--card-black);
+    color: var(--accent-peach);
+}
+
+.table thead th {
+    background-color: var(--primary-dark);
+    color: var(--accent-peach);
+    border-color: var(--secondary-green);
+}
+
+.table tbody tr {
+    border-color: var(--secondary-green);
+}
+
+.table tbody tr:hover {
+    background-color: var(--secondary-green);
+}
+
+.alert {
+    background-color: var(--secondary-green);
+    color: var(--accent-peach);
+    border: none;
+}
+
+.alert-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.alert-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.balance-card {
+    background: linear-gradient(135deg, var(--primary-dark), var(--secondary-green));
+    color: var(--accent-peach);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.balance-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--accent-peach);
+}
+
+.map-container {
+    height: 400px;
+    background-color: var(--card-black);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-peach);
+}
