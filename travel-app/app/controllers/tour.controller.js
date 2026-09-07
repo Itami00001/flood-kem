@@ -3,35 +3,40 @@ const Tour = db.tour;
 const Route = db.route;
 
 // Create a new tour
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   if (!req.body.route_id || !req.body.name || !req.body.price || !req.body.max_participants || !req.body.start_date || !req.body.end_date) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
-    return;
+    return res.status(400).send({ message: "Content can not be empty!" });
   }
 
-  const tour = {
-    route_id: req.body.route_id,
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    max_participants: req.body.max_participants,
-    current_participants: req.body.current_participants || 0,
-    start_date: req.body.start_date,
-    end_date: req.body.end_date,
-    status: req.body.status || 'active'
-  };
-
-  Tour.create(tour)
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while creating the Tour."
+  try {
+    // Проверяем что маршрут существует
+    const route = await Route.findByPk(req.body.route_id);
+    if (!route) {
+      return res.status(400).send({
+        message: `Маршрут с ID=${req.body.route_id} не найден. Укажите существующий ID маршрута (1, 2 или 3).`
       });
+    }
+
+    const tour = {
+      route_id: req.body.route_id,
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      max_participants: req.body.max_participants,
+      current_participants: req.body.current_participants || 0,
+      start_date: req.body.start_date,
+      end_date: req.body.end_date,
+      status: req.body.status || 'active'
+    };
+
+    const data = await Tour.create(tour);
+    res.send(data);
+  } catch (err) {
+    console.error('Error creating tour:', err);
+    res.status(500).send({
+      message: err.message || "Some error occurred while creating the Tour."
     });
+  }
 };
 
 // Retrieve all tours

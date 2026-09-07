@@ -47,7 +47,9 @@ async function loadTours() {
     // Show create-tour card only for admin
     const createRow = document.getElementById('createTourRow');
     if (createRow) {
-        createRow.style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
+        const isAdmin = currentUser && currentUser.role === 'admin';
+        createRow.style.display = isAdmin ? 'flex' : 'none';
+        if (isAdmin) loadRoutesIntoSelect();
     }
 }
 
@@ -185,6 +187,19 @@ async function createBooking(tourId, tourPrice) {
     }
 }
 
+// Load routes into create-tour select (called when admin card is shown)
+async function loadRoutesIntoSelect() {
+    try {
+        const routes = await routeAPI.getAll();
+        const sel = document.getElementById('newTourRouteId');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">— выберите маршрут —</option>' +
+            routes.map(r => `<option value="${r.id}">${r.name} (сложность ${r.difficulty}, ${r.duration_days} дн.)</option>`).join('');
+    } catch (e) {
+        console.error('Cannot load routes for select:', e);
+    }
+}
+
 // Create new tour (admin only)
 async function createNewTour() {
     const routeId  = parseInt(document.getElementById('newTourRouteId').value);
@@ -195,7 +210,11 @@ async function createNewTour() {
     const start    = document.getElementById('newTourStart').value;
     const end      = document.getElementById('newTourEnd').value;
 
-    if (!routeId || !name || !price || !maxP || !start || !end) {
+    if (!routeId || isNaN(routeId)) {
+        alert('Выберите маршрут из списка');
+        return;
+    }
+    if (!name || !price || isNaN(price) || !maxP || isNaN(maxP) || !start || !end) {
         alert('Заполните все обязательные поля (кроме описания)');
         return;
     }
@@ -217,7 +236,8 @@ async function createNewTour() {
         });
         alert('Тур успешно создан!');
         // Очищаем форму
-        ['newTourRouteId','newTourName','newTourDesc','newTourPrice','newTourMax','newTourStart','newTourEnd']
+        document.getElementById('newTourRouteId').value = '';
+        ['newTourName','newTourDesc','newTourPrice','newTourMax','newTourStart','newTourEnd']
             .forEach(id => document.getElementById(id).value = '');
         loadTours();
     } catch (error) {

@@ -15,7 +15,13 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Пробуем прочитать текст ошибки от сервера
+            let errMsg = `HTTP error! status: ${response.status}`;
+            try {
+                const errBody = await response.json();
+                if (errBody.message) errMsg = errBody.message;
+            } catch (_) {}
+            throw new Error(errMsg);
         }
         return await response.json();
     } catch (error) {
