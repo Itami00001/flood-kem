@@ -28,6 +28,20 @@ exports.create = async (req, res) => {
       });
     }
 
+    // Check user wallet balance
+    const wallet = await db.wallet.findOne({ where: { user_id: req.body.user_id } });
+    if (!wallet) {
+      return res.status(404).send({
+        message: "Wallet not found for this user."
+      });
+    }
+
+    if (wallet.balance < req.body.total_price) {
+      return res.status(400).send({
+        message: "Недостаточно COIN на балансе для бронирования."
+      });
+    }
+
     const booking = {
       user_id: req.body.user_id,
       tour_id: req.body.tour_id,
@@ -39,6 +53,12 @@ exports.create = async (req, res) => {
 
     const data = await Booking.create(booking);
     
+    // Deduct COIN from wallet
+    await db.wallet.update(
+      { balance: wallet.balance - req.body.total_price },
+      { where: { user_id: req.body.user_id } }
+    );
+
     // Update tour participants count
     await Tour.update(
       { current_participants: tour.current_participants + req.body.participants_count },
